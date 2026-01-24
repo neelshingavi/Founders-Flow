@@ -15,6 +15,7 @@ import {
     getDoc
 } from "firebase/firestore";
 import { Connection, ConnectionStatus } from "./types/connection";
+export type { ConnectionStatus };
 
 // Shape of an individual social connection request (used in dashboards & profile)
 export interface ConnectionRequest {
@@ -238,5 +239,26 @@ export function getSentRequests(userId: string, callback: (ids: string[]) => voi
     return onSnapshot(q, (snapshot) => {
         const ids = snapshot.docs.map(doc => doc.data().to);
         callback(ids);
+    });
+}
+
+/**
+ * Subscribes to the real-time connected users list.
+ * Merges logic for social connections.
+ */
+export function getConnectedUsersSnapshot(userId: string, callback: (ids: string[]) => void) {
+    const q = query(
+        collection(db, SOCIAL_CONNECTIONS_COLLECTION),
+        where("users", "array-contains", userId)
+    );
+
+    return onSnapshot(q, (snapshot) => {
+        const connectedIds: string[] = [];
+        snapshot.docs.forEach(doc => {
+            const data = doc.data();
+            const otherId = data.users.find((id: string) => id !== userId);
+            if (otherId) connectedIds.push(otherId);
+        });
+        callback(connectedIds);
     });
 }

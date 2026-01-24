@@ -38,7 +38,7 @@ export function MessagingHub({ roleContext }: MessagingHubProps) {
         getUserData(currentUser.uid).then(setCurrentUserData);
 
         // 1. Real-time Connection Listener
-        const unsubConnections = getConnectedUsersSnapshot(currentUser.uid, (ids) => {
+        const unsubConnections = getConnectedUsersSnapshot(currentUser.uid, (ids: string[]) => {
             setConnectedUserIds(ids);
             // Fetch names for anyone missing
             ids.forEach(id => {
